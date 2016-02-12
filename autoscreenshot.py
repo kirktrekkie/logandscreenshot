@@ -51,20 +51,22 @@ class LogAndScreenshot():
     def computerinfo(self):
         logfile = self.filepathname + "log"
         result = []
-        f = open(logfile, 'w+')
-
-        f.write('Total cpu_percent: %f' % (psutil.cpu_percent(0.2)) + '\n')
-        f.write('Total memory stats: %s' % (str(psutil.virtual_memory())) + '\n\n')
-        f.write(LOG_FILE_HEADER)
-
+        # Use threads to take out cpu_percent for the different processes
         pool = ThreadPool(processes=len(self.processfilter))
-
         for proc in psutil.process_iter():
             for pfilter in self.processfilter:
                 if pfilter in proc.name():
                     result.append(pool.apply_async(self.take_out_computer_info, (proc,)))
                     #self.log(clock())
-        sleep(1)
+
+        # While threads are running take out total cpu_percent and start write to file
+        f = open(logfile, 'w+')
+        f.write('Total cpu_percent: %f' % (psutil.cpu_percent(1)) + '\n')
+        f.write('Total memory stats: %s' % (str(psutil.virtual_memory())) + '\n\n')
+        f.write(LOG_FILE_HEADER)
+        #sleep(1)
+
+        # Get the results from the threads and write them to file
         for res in result:
             self.log("In result loop clock: %f" %(clock()))
             for info in res.get():
@@ -77,7 +79,7 @@ class LogAndScreenshot():
         pinfo = [
             proc.pid,
             proc.name(),
-            proc.cpu_percent(1  ),
+            proc.cpu_percent(1),
             proc.create_time(),
             proc.cpu_times(),
             proc.memory_info(),
