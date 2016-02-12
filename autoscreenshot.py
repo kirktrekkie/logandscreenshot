@@ -32,7 +32,7 @@ class LogAndScreenshot():
         if len(sys.argv) > 1:
             path = sys.argv[1]
             if len(sys.argv) > 2:
-                self.log("path: " + path)
+                #self.log("path: " + path)
                 path += "\\" + sys.argv[2]
             if not os.path.exists(path):
                 os.mkdir(path)
@@ -50,8 +50,8 @@ class LogAndScreenshot():
 
     def computerinfo(self):
         logfile = self.filepathname + "log"
-        result = []
         # Use threads to take out cpu_percent for the different processes
+        result = []
         pool = ThreadPool(processes=len(self.processfilter))
         for proc in psutil.process_iter():
             for pfilter in self.processfilter:
