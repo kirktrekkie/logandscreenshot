@@ -44,15 +44,23 @@ class LogAndScreenshot():
         pyscreenshot.grab_to_file(name)
 
     def computerinfo(self):
-
+        logfile = self.filepathname + "log"
+        f = open(logfile, 'w+')
         for proc in psutil.process_iter():
-            print(proc.name())
-            print(proc.cpu_percent())
-            print(proc.pid)
-            print(proc.create_time())
-            print(proc.cpu_times())
-            print(proc.memory_info())
-            print(proc.memory_percent())
+            self.file_writer(f,proc.pid)
+            self.file_writer(f,proc.name())
+            self.file_writer(f,proc.cpu_percent())
+            self.file_writer(f,proc.create_time())
+            self.file_writer(f,proc.cpu_times())
+            self.file_writer(f,proc.memory_info())
+            self.file_writer(f,proc.memory_percent())
+            f.write('\n')
+        f.close()
+
+    def file_writer(self,file,info):
+        if type(info) != 'str':
+            info = str(info)
+        file.write(info + '\t')
 
 
 if(__name__ == '__main__'):
