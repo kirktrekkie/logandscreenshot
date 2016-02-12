@@ -3,6 +3,7 @@
 import pyscreenshot
 import sys, os
 from time import strftime,sleep
+import psutil
 
 logenabled = True
 
@@ -40,8 +41,21 @@ def screenshot(name):
     pyscreenshot.grab_to_file(name)
 
 
+def computerinfo():
+    
+    for proc in psutil.process_iter():
+        print(proc.name())
+        print(proc.cpu_percent())
+        print(proc.pid)
+        print(proc.create_time())
+        print(proc.cpu_times())
+        print(proc.memory_info())
+        print(proc.memory_percent())
+
+
 if(__name__ == '__main__'):
     for i in range(iterations()):
-        path = filename()
-        screenshot(path)
+        #path = filename()
+        #screenshot(path)
+        computerinfo()
         sleep(2)
