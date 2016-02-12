@@ -75,7 +75,7 @@ class LogAndScreenshot():
         file.write(info + '\t')
 
 
-if(__name__ == '__main__'):
+if __name__ == '__main__':
     logger = LogAndScreenshot()
     for i in range(logger.iterations()):
         start = clock()
