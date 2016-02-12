@@ -10,10 +10,11 @@ LOG_FILE_HEADER = "pid\tname\tcpu_percent\tcreate_time\tcpu_times\tmemory_info\t
 
 class LogAndScreenshot():
     def __init__(self):
-        self.logenabled = True
+        self.logenabled = False
         self.imageformat = "jpg"
         self.filepathname = ""
         self.iterationstotal = 3600 * 24
+        self.processfilter = ['firefox', 'python', 'pycharm', 'EXCEL']
 
     def log(self, message):
         if self.logenabled:
@@ -48,16 +49,23 @@ class LogAndScreenshot():
     def computerinfo(self):
         logfile = self.filepathname + "log"
         f = open(logfile, 'w+')
+
+        f.write('Total cpu_percent: %f' % (psutil.cpu_percent(0.2)) + '\n')
+        f.write('Total memory stats: %s' % (str(psutil.virtual_memory())) + '\n\n')
         f.write(LOG_FILE_HEADER)
         for proc in psutil.process_iter():
-            self.file_writer(f,proc.pid)
-            self.file_writer(f,proc.name())
-            self.file_writer(f,proc.cpu_percent())
-            self.file_writer(f,proc.create_time())
-            self.file_writer(f,proc.cpu_times())
-            self.file_writer(f,proc.memory_info())
-            self.file_writer(f,proc.memory_percent())
-            f.write('\n')
+            for pfilter in self.processfilter:
+                if pfilter in proc.name():
+                    self.log(pfilter)
+                    self.log(proc.name())
+                    self.file_writer(f,proc.pid)
+                    self.file_writer(f,proc.name())
+                    self.file_writer(f,proc.cpu_percent(0.2))
+                    self.file_writer(f,proc.create_time())
+                    self.file_writer(f,proc.cpu_times())
+                    self.file_writer(f,proc.memory_info())
+                    self.file_writer(f,proc.memory_percent())
+                    f.write('\n')
         f.close()
 
     def file_writer(self,file,info):
