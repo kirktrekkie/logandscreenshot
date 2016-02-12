@@ -5,6 +5,8 @@ import sys, os
 from time import strftime,sleep
 import psutil
 
+# Constants
+LOG_FILE_HEADER = "pid\tname\tcpu_percent\tcreate_time\tcpu_times\tmemory_info\tmemory_percent\n"
 
 class LogAndScreenshot():
     def __init__(self):
@@ -46,6 +48,7 @@ class LogAndScreenshot():
     def computerinfo(self):
         logfile = self.filepathname + "log"
         f = open(logfile, 'w+')
+        f.write(LOG_FILE_HEADER)
         for proc in psutil.process_iter():
             self.file_writer(f,proc.pid)
             self.file_writer(f,proc.name())
