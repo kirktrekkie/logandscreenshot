@@ -4,6 +4,7 @@ import pyscreenshot
 import sys, os
 import psutil
 from time import strftime,sleep,clock
+from multiprocessing.pool import ThreadPool
 
 
 # Constants
@@ -11,7 +12,7 @@ LOG_FILE_HEADER = "pid\tname\tcpu_percent\tcreate_time\tcpu_times\tmemory_info\t
 
 class LogAndScreenshot():
     def __init__(self):
-        self.logenabled = False
+        self.logenabled = True
         self.imageformat = "jpg"
         self.filepathname = ""
         self.iterationstotal = 3600 * 24 / 3
@@ -49,25 +50,40 @@ class LogAndScreenshot():
 
     def computerinfo(self):
         logfile = self.filepathname + "log"
+        result = []
         f = open(logfile, 'w+')
 
         f.write('Total cpu_percent: %f' % (psutil.cpu_percent(0.2)) + '\n')
         f.write('Total memory stats: %s' % (str(psutil.virtual_memory())) + '\n\n')
         f.write(LOG_FILE_HEADER)
+
+        pool = ThreadPool(processes=len(self.processfilter))
+
         for proc in psutil.process_iter():
             for pfilter in self.processfilter:
                 if pfilter in proc.name():
-                    self.log(pfilter)
-                    self.log(proc.name())
-                    self.file_writer(f,proc.pid)
-                    self.file_writer(f,proc.name())
-                    self.file_writer(f,proc.cpu_percent(0.2))
-                    self.file_writer(f,proc.create_time())
-                    self.file_writer(f,proc.cpu_times())
-                    self.file_writer(f,proc.memory_info())
-                    self.file_writer(f,proc.memory_percent())
-                    f.write('\n')
+                    result.append(pool.apply_async(self.take_out_computer_info, (proc,)))
+                    #self.log(clock())
+        sleep(1)
+        for res in result:
+            self.log("In result loop clock: %f" %(clock()))
+            for info in res.get():
+                self.file_writer(f,info)
+            f.write('\n')
+        self.log("Close file")
         f.close()
+
+    def take_out_computer_info(self,proc):
+        pinfo = [
+            proc.pid,
+            proc.name(),
+            proc.cpu_percent(1  ),
+            proc.create_time(),
+            proc.cpu_times(),
+            proc.memory_info(),
+            proc.memory_percent()
+        ]
+        return pinfo
 
     def file_writer(self,file,info):
         if type(info) != 'str':
@@ -83,5 +99,6 @@ if(__name__ == '__main__'):
         logger.screenshot()
         logger.computerinfo()
         end = clock()
+        logger.log("end-start: %s" %(end-start))
         if end-start < 3:
             sleep(3-(end-start))
