@@ -2,8 +2,9 @@
 
 import pyscreenshot
 import sys, os
-from time import strftime,sleep
 import psutil
+from time import strftime,sleep,clock
+
 
 # Constants
 LOG_FILE_HEADER = "pid\tname\tcpu_percent\tcreate_time\tcpu_times\tmemory_info\tmemory_percent\n"
@@ -13,7 +14,7 @@ class LogAndScreenshot():
         self.logenabled = False
         self.imageformat = "jpg"
         self.filepathname = ""
-        self.iterationstotal = 3600 * 24
+        self.iterationstotal = 3600 * 24 / 3
         self.processfilter = ['firefox', 'python', 'pycharm', 'EXCEL']
 
     def log(self, message):
@@ -22,7 +23,7 @@ class LogAndScreenshot():
 
     def iterations(self):
         if len(sys.argv) == 4:
-            self.iterationstotal = (int(sys.argv[3])*60 / 2)
+            self.iterationstotal = (int(sys.argv[3])*60 / 3)
         return int(self.iterationstotal)
 
     def file_name_and_path(self):
@@ -77,7 +78,10 @@ class LogAndScreenshot():
 if(__name__ == '__main__'):
     logger = LogAndScreenshot()
     for i in range(logger.iterations()):
+        start = clock()
         logger.file_name_and_path()
         logger.screenshot()
         logger.computerinfo()
-        sleep(2)
+        end = clock()
+        if end-start < 3:
+            sleep(3-(end-start))
