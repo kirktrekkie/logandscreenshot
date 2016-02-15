@@ -8,8 +8,10 @@
 # pyscreenshot, psutil ...
 
 import pyscreenshot
-import sys, os
+import sys
 import psutil
+from os.path import exists
+from os import mkdir
 from time import strftime,sleep,clock
 from multiprocessing.pool import ThreadPool
 
@@ -47,7 +49,9 @@ class LogAndScreenshot():
             self.log("Settings file not created. %s"%e)
 
     def set_parameters(self,parameter):
+        # Parse parameters from command args or settings.txt
         temp = parameter.split('=')
+        temp[1] = temp[1].rstrip('\n')
         if temp[0] == "path":
             self.path = temp[1]
         elif temp[0] == "testcase":
@@ -60,21 +64,24 @@ class LogAndScreenshot():
             self.log("Unknown parameter: %s" %(temp[0]))
 
     def iterations(self):
+        # Calculate number of iterations to run
         if self.testminutes != 60 * 24:
             self.iterationstotal = self.testminutes*60 / 3
         self.log("iterationstotal: %d" %self.iterationstotal)
         return int(self.iterationstotal)
 
     def file_name_and_path(self):
+        # Add current date and time to the name of the files
         name = strftime("%Y%m%d-%H%M%S") + "."
         self.filepathname = self.path + self.testcase
-        if not os.path.exists(self.filepathname):
-            os.mkdir(self.filepathname)
+        if not exists(self.filepathname):
+            mkdir(self.filepathname)
         self.filepathname += "\\" + name
         self.log("totalpath: " + self.filepathname)
         return self.filepathname
 
     def screenshot(self):
+        # Take a screenshot and save it to file
         name = self.filepathname + self.imageformat
         pyscreenshot.grab_to_file(name)
 
