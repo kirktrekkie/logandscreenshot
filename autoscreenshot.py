@@ -1,4 +1,8 @@
-#autoscreenshot [<path>[<folder>[<time in minutes>]]]
+# Use:
+# autoscreenshot.py [path=<path>][testcase=<testcase>][minutes=<minutes to run>|iterations=<iterations to run]
+#
+# Requirements:
+# pyscreenshot, psutil ...
 
 import pyscreenshot
 import sys, os
