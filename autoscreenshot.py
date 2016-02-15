@@ -1,6 +1,9 @@
 # Use:
 # autoscreenshot.py [path=<path>][testcase=<testcase>][minutes=<minutes to run>|iterations=<iterations to run]
 #
+# Parameters can also be saved in settings.txt in the same folder
+# Format: parameter=value
+#
 # Requirements:
 # pyscreenshot, psutil ...
 
@@ -32,18 +35,7 @@ class LogAndScreenshot():
     def process_args(self):
         sys.argv.pop(0)
         for arg in sys.argv:
-            temp = arg.split('=')
-            if temp[0] == "path":
-                self.path = temp[1]
-            elif temp[0] == "testcase":
-                self.testcase = temp[1]
-            elif temp[0] == "minutes":
-                self.testminutes = int(temp[1])
-            elif temp[0] == "iterations":
-                self.iterationstotal = int(temp[1])
-
-            else:
-                self.log("Unknown parameter: %s" %(temp[0]))
+            self.set_parameters(arg)
 
     def read_settings_file(self):
         try:
