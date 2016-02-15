@@ -45,6 +45,28 @@ class LogAndScreenshot():
             else:
                 self.log("Unknown parameter: %s" %(temp[0]))
 
+    def read_settings_file(self):
+        try:
+            f = open("settings.txt",'r')
+            for line in f:
+                self.set_parameters(line)
+            f.close()
+        except FileNotFoundError as e:
+            self.log("Settings file not created. %s"%e)
+
+    def set_parameters(self,parameter):
+        temp = parameter.split('=')
+        if temp[0] == "path":
+            self.path = temp[1]
+        elif temp[0] == "testcase":
+            self.testcase = temp[1]
+        elif temp[0] == "minutes":
+            self.testminutes = int(temp[1])
+        elif temp[0] == "iterations":
+            self.iterationstotal = int(temp[1])
+        else:
+            self.log("Unknown parameter: %s" %(temp[0]))
+
     def iterations(self):
         if self.testminutes != 60 * 24:
             self.iterationstotal = self.testminutes*60 / 3
@@ -130,6 +152,7 @@ class LogAndScreenshot():
 
 if __name__ == '__main__':
     logger = LogAndScreenshot()
+    logger.read_settings_file()
     logger.process_args()
     for i in range(logger.iterations()):
         logger.log("iteration: %d"%i)
