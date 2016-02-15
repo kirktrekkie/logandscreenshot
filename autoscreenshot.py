@@ -15,34 +15,45 @@ class LogAndScreenshot():
         self.logenabled = True
         self.imageformat = "jpg"
         self.filepathname = ""
-        self.iterationstotal = 3600 * 24 / 3
+        self.path = ""
+        self.testcase = ""
+        self.testminutes = 60 * 24
+        self.iterationstotal = 3600 * self.testminutes / 3
         self.processfilter = [] #['firefox', 'python', 'pycharm', 'EXCEL', 'taskmgr', 'explorer', 'OneDrive', 'cmd']
 
     def log(self, message):
         if self.logenabled:
             print(message)
 
+    def process_args(self):
+        sys.argv.pop(0)
+        for arg in sys.argv:
+            temp = arg.split('=')
+            if temp[0] == "path":
+                self.path = temp[1]
+            elif temp[0] == "testcase":
+                self.testcase = temp[1]
+            elif temp[0] == "minutes":
+                self.testminutes = temp[1]
+            elif temp[0] == "iterations":
+                self.iterationstotal = temp[1]
+
+            else:
+                self.log("Unknown parameter: %s" %(temp[0]))
+
     def iterations(self):
-        if len(sys.argv) == 4:
-            self.iterationstotal = (int(sys.argv[3])*60 / 3)
+        if self.testminutes != 60 * 24:
+            self.iterationstotal = int(float(self.testminutes*60) / 3)
         return int(self.iterationstotal)
 
     def file_name_and_path(self):
         name = strftime("%Y%m%d-%H%M%S") + "."
-        if len(sys.argv) > 1:
-            path = sys.argv[1]
-            if len(sys.argv) > 2:
-                #self.log("path: " + path)
-                path += "\\" + sys.argv[2]
-            if not os.path.exists(path):
-                os.mkdir(path)
-            self.filepathname = path + "\\" + name
-            self.log("path: " + path)
-            return path
-        else:
-            self.log("name: " + name)
-            self.filepathname = name
-            return name
+        self.filepathname = self.path + self.testcase
+        if not os.path.exists(self.filepathname):
+            os.mkdir(self.filepathname)
+        self.filepathname += "\\" + name
+        self.log("totalpath: " + self.filepathname)
+        return self.filepathname
 
     def screenshot(self):
         name = self.filepathname + self.imageformat
@@ -78,24 +89,33 @@ class LogAndScreenshot():
 
         # Get the results from the threads and write them to file
         for res in result:
-            self.log("In result loop clock: %f" %(clock()))
-            for info in res.get():
-                self.file_writer(f,info)
+            try:
+                self.log("In result loop clock: %f" %(clock()))
+                for info in res.get():
+                    self.file_writer(f,info)
+            except (ProcessLookupError, psutil.NoSuchProcess) as e:
+                self.log("Process not found. %s" %e)
             f.write('\n')
         self.log("Close file")
+        pool.close()
+        pool.terminate()
+        pool.join()
         f.close()
 
     def take_out_computer_info(self,proc):
-        pinfo = [
-            proc.pid,
-            proc.name(),
-            proc.cpu_percent(1),
-            proc.create_time(),
-            proc.cpu_times(),
-            proc.memory_info(),
-            proc.memory_percent()
-        ]
-        return pinfo
+        try:
+            pinfo = [
+                proc.pid,
+                proc.name(),
+                proc.cpu_percent(1),
+                proc.create_time(),
+                proc.cpu_times(),
+                proc.memory_info(),
+                proc.memory_percent()
+            ]
+            return pinfo
+        except ProcessLookupError as e:
+            self.log("Process not found. %s" %e)
 
     def file_writer(self,file,info):
         if type(info) != 'str':
@@ -105,7 +125,9 @@ class LogAndScreenshot():
 
 if __name__ == '__main__':
     logger = LogAndScreenshot()
+    logger.process_args()
     for i in range(logger.iterations()):
+        logger.log("iteration: %d"%i)
         start = clock()
         logger.file_name_and_path()
         logger.screenshot()
