@@ -16,7 +16,7 @@ class LogAndScreenshot():
         self.imageformat = "jpg"
         self.filepathname = ""
         self.iterationstotal = 3600 * 24 / 3
-        self.processfilter = ['firefox', 'python', 'pycharm', 'EXCEL', 'taskmgr', 'explorer', 'OneDrive', 'cmd', 'L']
+        self.processfilter = [] #['firefox', 'python', 'pycharm', 'EXCEL', 'taskmgr', 'explorer', 'OneDrive', 'cmd']
 
     def log(self, message):
         if self.logenabled:
@@ -52,13 +52,22 @@ class LogAndScreenshot():
         logfile = self.filepathname + "log"
         # Use threads to take out cpu_percent for the different processes
         result = []
-        pool = ThreadPool(processes=len(self.processfilter))
-        for proc in psutil.process_iter():
-            for pfilter in self.processfilter:
-                if pfilter in proc.name():
-                    result.append(pool.apply_async(self.take_out_computer_info, (proc,)))
-                    break
-                    #self.log(clock())
+        # No filter
+        if len(self.processfilter) == 0:
+            numproc = len(psutil.pids())
+            print(numproc)
+            pool = ThreadPool(processes=numproc)
+            for proc in psutil.process_iter():
+                result.append(pool.apply_async(self.take_out_computer_info, (proc,)))
+        # With filter
+        else:
+            pool = ThreadPool(processes=len(self.processfilter))
+            for proc in psutil.process_iter():
+                for pfilter in self.processfilter:
+                    if pfilter in proc.name():
+                        result.append(pool.apply_async(self.take_out_computer_info, (proc,)))
+                        break
+                        #self.log(clock())
 
         # While threads are running take out total cpu_percent and start write to file
         f = open(logfile, 'w+')
