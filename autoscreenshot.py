@@ -18,7 +18,7 @@ class LogAndScreenshot():
         self.path = ""
         self.testcase = ""
         self.testminutes = 60 * 24
-        self.iterationstotal = 3600 * self.testminutes / 3
+        self.iterationstotal = 60 * self.testminutes / 3
         self.processfilter = [] #['firefox', 'python', 'pycharm', 'EXCEL', 'taskmgr', 'explorer', 'OneDrive', 'cmd']
 
     def log(self, message):
@@ -34,16 +34,17 @@ class LogAndScreenshot():
             elif temp[0] == "testcase":
                 self.testcase = temp[1]
             elif temp[0] == "minutes":
-                self.testminutes = temp[1]
+                self.testminutes = int(temp[1])
             elif temp[0] == "iterations":
-                self.iterationstotal = temp[1]
+                self.iterationstotal = int(temp[1])
 
             else:
                 self.log("Unknown parameter: %s" %(temp[0]))
 
     def iterations(self):
         if self.testminutes != 60 * 24:
-            self.iterationstotal = int(float(self.testminutes*60) / 3)
+            self.iterationstotal = self.testminutes*60 / 3
+        self.log("iterationstotal: %d" %self.iterationstotal)
         return int(self.iterationstotal)
 
     def file_name_and_path(self):
@@ -90,7 +91,7 @@ class LogAndScreenshot():
         # Get the results from the threads and write them to file
         for res in result:
             try:
-                self.log("In result loop clock: %f" %(clock()))
+                #self.log("In result loop clock: %f" %(clock()))
                 for info in res.get():
                     self.file_writer(f,info)
             except (ProcessLookupError, psutil.NoSuchProcess) as e:
