@@ -28,7 +28,7 @@ class LogAndScreenshot():
         self.testcase = ""
         self.testminutes = 60 * 24
         self.iterationstotal = 60 * self.testminutes / 3
-        self.processfilter = [] #['firefox', 'python', 'pycharm', 'EXCEL', 'taskmgr', 'explorer', 'OneDrive', 'cmd']
+        self.processfilter = [] #['firefox', 'python', 'pycharm', 'EXCEL', 'taskmgr', 'explorer', 'cmd']
 
     def log(self, message):
         if self.logenabled:
@@ -60,6 +60,10 @@ class LogAndScreenshot():
             self.testminutes = int(temp[1])
         elif temp[0] == "iterations":
             self.iterationstotal = int(temp[1])
+        elif temp[0] == "filter":
+            tempfilter = temp[1].split(',')
+            for process in tempfilter:
+                self.processfilter.append(process.strip())
         else:
             self.log("Unknown parameter: %s" %(temp[0]))
 
