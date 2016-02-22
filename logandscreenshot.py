@@ -70,6 +70,7 @@ class LogAndScreenshot():
             self.imageformat = temp[1]
         else:
             self.log("Unknown parameter: %s" %(temp[0]))
+            return "Unknown parameter: %s" %(temp[0])
 
     def iterations(self):
         # Calculate number of iterations to run
