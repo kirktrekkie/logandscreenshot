@@ -19,16 +19,18 @@ from multiprocessing.pool import ThreadPool
 # Constants
 LOG_FILE_HEADER = "pid\tname\tcpu_percent\tcreate_time\tcpu_times\tmemory_info\tmemory_percent\n"
 
+
 class LogAndScreenshot():
-    def __init__(self):
-        self.logenabled = True
-        self.imageformat = "jpg"
-        self.filepathname = ""
-        self.path = ""
-        self.testcase = ""
-        self.testminutes = 60 * 24
+    def __init__(self,logenabled=True, imageformat="png", filepathname="", path="", testcase="", testminutes=60*24,
+                       processfilter=[]):
+        self.logenabled = logenabled
+        self.imageformat = imageformat
+        self.filepathname = filepathname
+        self.path = path
+        self.testcase = testcase
+        self.testminutes = testminutes
         self.iterationstotal = 60 * self.testminutes / 3
-        self.processfilter = [] #['firefox', 'python', 'pycharm', 'EXCEL', 'taskmgr', 'explorer', 'cmd']
+        self.processfilter = processfilter #['firefox', 'python', 'pycharm', 'EXCEL', 'taskmgr', 'explorer', 'cmd']
 
     def log(self, message):
         if self.logenabled:
