@@ -64,6 +64,8 @@ class LogAndScreenshot():
             tempfilter = temp[1].split(',')
             for process in tempfilter:
                 self.processfilter.append(process.strip())
+        elif temp[0] == 'imageformat':
+            self.imageformat = temp[1]
         else:
             self.log("Unknown parameter: %s" %(temp[0]))
 
