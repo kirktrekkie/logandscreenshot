@@ -10,6 +10,7 @@
 import pyscreenshot
 import sys
 import psutil
+import logging
 from os.path import exists
 from os import mkdir
 from time import strftime,sleep,clock
@@ -31,10 +32,11 @@ class LogAndScreenshot():
         self.testminutes = testminutes
         self.iterationstotal = 60 * self.testminutes / 3
         self.processfilter = processfilter #['firefox', 'python', 'pycharm', 'EXCEL', 'taskmgr', 'explorer', 'cmd']
+        logging.basicConfig(level=logging.DEBUG, format=' %(asctime)s - %(levelname)s - %(message)s')
 
     def log(self, message):
         if self.logenabled:
-            print(message)
+            logging.debug(message)
 
     def process_args(self):
         sys.argv.pop(0)
